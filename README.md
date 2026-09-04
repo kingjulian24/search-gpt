@@ -18,36 +18,51 @@ Rather than stuffing megabytes of text into an LLM context window—which is cos
 
 ## 🏗 Architecture
 
-```
-                               ┌─────────────────────────────┐
-                               │  LLM Clients                │
-                               │  (Google Antigravity,       │
-                               │   Claude Desktop, Cursor)   │
-                               └──────────────┬──────────────┘
-                                              │ stdio (JSON-RPC)
-                                              ▼
-                               ┌─────────────────────────────┐
-                               │     search-gpt MCP Server   │
-                               │                             │
-                               │  - search_conversations     │
-                               │  - get_conversation         │
-                               │  - list_conversations       │
-                               │  - extract_nuggets          │
-                               │  - get_archive_stats        │
-                               └──────────────┬──────────────┘
-                                              │
-                                              ▼
-                               ┌─────────────────────────────┐
-                               │  SQLite Database + FTS5     │
-                               │  (BM25 ranking, instant,    │
-                               │   exact keyword & code)     │
-                               └──────────────┬──────────────┘
-                                              │ Ingest / Parse
-                                              ▼
-                               ┌─────────────────────────────┐
-                               │   data/conversations-*.json │
-                               │   (584 chats, 28k messages) │
-                               └─────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Clients ["LLM Clients"]
+        AG["Google Antigravity"]
+        CD["Claude Desktop"]
+        CR["Cursor / Zed"]
+    end
+
+    subgraph Server ["search-gpt MCP Server (src/server.py)"]
+        MCP["MCP Protocol Handler (stdio / JSON-RPC)"]
+        
+        subgraph Tools ["Writing & Retrieval Tools"]
+            T1["search_conversations (BM25 keyword search)"]
+            T2["extract_nuggets (prompt-insight pairs for essays)"]
+            T3["get_conversation (dialogue with turn pagination)"]
+            T4["list_conversations (chronological title browsing)"]
+            T5["get_archive_stats (conversation & turn metrics)"]
+        end
+    end
+
+    subgraph Storage ["Local Storage Engine (conversations.db)"]
+        DB[("SQLite 3 Database")]
+        FTS["FTS5 Full-Text Index (BM25 + Porter Stemming)"]
+        TABLES["Structured Tables (conversations, messages)"]
+    end
+
+    subgraph Data ["Raw Data Archive (data/)"]
+        RAW["ChatGPT Export JSON Files (584 chats, 28k messages)"]
+    end
+
+    %% Client to Server
+    AG <-->|"stdio (JSON-RPC)"| MCP
+    CD <-->|"stdio (JSON-RPC)"| MCP
+    CR <-->|"stdio (JSON-RPC)"| MCP
+
+    %% Server to Tools
+    MCP --> Tools
+
+    %% Tools to Storage
+    Tools <-->|"Sub-millisecond queries"| Storage
+    DB --- FTS
+    DB --- TABLES
+
+    %% Ingestion Pipeline
+    RAW -.->|"Offline Ingestion (src/indexer.py)"| Storage
 ```
 
 ### Why MCP + Indexed Search?
