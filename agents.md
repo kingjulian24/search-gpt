@@ -79,9 +79,9 @@ The server must expose the following core tools to agents:
 
 When modifying or contributing to `search-gpt`, agents must adhere to the following:
 
-1. **Do Not Mutate Raw Data:** Never edit, reformat, or delete the markdown files in `data/`. They are treated as read-only source files.
+1. **Do Not Mutate Raw Data:** Never edit, reformat, or delete the export files in `data/`. They are treated as read-only source files.
 2. **Reproducible Indexing:** Any database or index must be regenerable via a single idempotent script (e.g. `python -m src.indexer` or `npm run index`).
 3. **Graceful Degradation:** The MCP server should start and function with basic lexical search (SQLite FTS5) even if external embedding dependencies or API keys are missing.
 4. **Token Consciousness:** Search tool responses should return concise snippets and summaries by default. Never dump 50 full conversations into an MCP tool response unless explicitly paginated or requested.
-5. **Type Safety & Testing:** Write typed code (mypy/pydantic for Python; TypeScript for TS). Include unit tests for the markdown parser to verify multi-turn conversation extraction and edge-case handling.
+5. **Type Safety & Testing:** Write typed code (mypy/pydantic for Python; TypeScript for TS). Include unit tests for the JSON parser to verify multi-turn conversation extraction and edge-case handling.
 6. **Error Handling:** MCP tool handlers must return clean error strings or structured JSON errors rather than throwing unhandled exceptions across the stdio transport.

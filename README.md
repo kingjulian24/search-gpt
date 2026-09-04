@@ -1,6 +1,6 @@
 # search-gpt
 
-**search-gpt** is a Model Context Protocol (MCP) server that enables AI assistants (Claude Desktop, Cursor, Zed, Antigravity, etc.) to query, retrieve, and explore historical LLM conversations from local markdown archive dumps.
+**search-gpt** is a Model Context Protocol (MCP) server that enables AI assistants (Google Antigravity, Claude Desktop, Cursor, Zed, etc.) to query, retrieve, and explore historical LLM conversations from local export archives (such as ChatGPT `conversations.json` dumps).
 
 ---
 
@@ -53,7 +53,7 @@ Rather than stuffing megabytes of text into an LLM context window—which is cos
 ### Why MCP + Indexed Search?
 | Approach | Token Cost | Latency | Exact Code / Error Search | Conceptual / Topic Search |
 |---|---|---|---|---|
-| **Raw Context Stuffing** (~40MB) | Extreme (~10M+ tokens) | Unusable / Exceeds limits | Poor (Lost in middle) | Unusable |
+| **Raw Context Stuffing** (~63.5MB) | Extreme (~15M+ tokens) | Unusable / Exceeds limits | Poor (Lost in middle) | Unusable |
 | **Grep / Ripgrep directly** | Low | Fast | High (exact regex/string) | None |
 | **MCP + SQLite FTS5 (BM25)** | Low (snippets returned) | Milliseconds | High (BM25 ranking + porter stemming) | Moderate |
 | **MCP + Hybrid (FTS5 + Vector)** | Low (top-k relevant) | Sub-second | High | High (captures semantic intent) |
